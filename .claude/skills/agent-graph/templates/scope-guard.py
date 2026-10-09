@@ -2,16 +2,22 @@
 """PreToolUse hook for agent-graph runs.
 
 Blocks Edit/Write outside the run's SCOPE and any write to the read-only
-evaluator (checks/, tests/). Opt-in per project; do not register globally.
+evaluator (checks/, tests/).
 
-Register in the project's .claude/settings.json:
+Safe to register globally: it does nothing unless the project is in an active
+agent-graph run, i.e. one of
+  - graph.md exists at the project root,
+  - AGENT_GRAPH_SCOPE is set,
+  - AGENT_GRAPH_ENFORCE=1.
+
+Register in ~/.claude/settings.json (or a project's .claude/settings.json):
   "hooks": {"PreToolUse": [{"matcher": "Edit|Write|MultiEdit|NotebookEdit",
     "hooks": [{"type": "command",
                "command": "python \"$HOME/.claude/skills/agent-graph/templates/scope-guard.py\""}]}]}
 
 Set AGENT_GRAPH_SCOPE to the writable folders, relative to the project root,
 separated by os.pathsep (";" on Windows, ":" elsewhere), e.g. "out;src".
-Without it, only the evaluator and out-of-project guards apply.
+Without a scope, only the evaluator and out-of-project guards apply.
 """
 import json
 import os
@@ -31,6 +37,12 @@ def main() -> None:
     if not path:
         return
     root = os.path.abspath(os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd())
+    if not (
+        os.path.isfile(os.path.join(root, "graph.md"))
+        or os.environ.get("AGENT_GRAPH_SCOPE")
+        or os.environ.get("AGENT_GRAPH_ENFORCE") == "1"
+    ):
+        return
     target = os.path.abspath(os.path.join(root, path))
     try:
         rel = os.path.relpath(target, root)

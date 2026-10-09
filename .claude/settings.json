@@ -1,4 +1,7 @@
 {
+  "env": {
+    "AGENT_GRAPH_ENFORCE": "1"
+  },
   "hooks": {
     "PreToolUse": [
       {
