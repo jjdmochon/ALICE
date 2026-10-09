@@ -83,7 +83,7 @@ Otherwise proceed.
 Prose is not a boundary. Enforce it with:
 
 - `permissions.deny` / `ask` rules in `.claude/settings.json`;
-- a `PreToolUse` hook that blocks Edit/Write outside SCOPE and inside `checks/` or `tests/` (reference: `templates/scope-guard.sh`).
+- a `PreToolUse` hook that blocks Edit/Write outside SCOPE and inside `checks/` or `tests/` (reference: `templates/scope-guard.py`, opt-in per project).
 
 Ask before publishing, sending, pushing, or spending. Each file has exactly one owning node. Keep a recoverable commit before any risky merge.
 
